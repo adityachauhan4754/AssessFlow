@@ -5,6 +5,14 @@ const api = axios.create({
   withCredentials: true // For sending HttpOnly cookies
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => Promise.reject(error));
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -12,6 +20,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       customMessage = 'Session expired, please log in again';
       localStorage.removeItem('user');
+      localStorage.removeItem('token');
       if (window.location.pathname !== '/login' && window.location.pathname !== '/session-expired') {
         window.location.href = '/session-expired';
       }
