@@ -27,13 +27,26 @@ const app = express();
 app.set('trust proxy', 1);
 
 const allowedOrigins = process.env.CLIENT_URL 
-  ? process.env.CLIENT_URL.split(',').map(url => url.trim()) 
+  ? process.env.CLIENT_URL.split(',').map(url => url.trim().replace(/\/$/, '')) 
   : [];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if the origin matches any allowed origin
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
   credentials: true
 }));
+
+// Explicitly handle pre-flight OPTIONS requests for all routes to prevent 405 errors
+app.options('*', cors());
 app.use(express.json());
 app.use(cookieParser());
 
