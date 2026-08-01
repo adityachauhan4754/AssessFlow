@@ -22,6 +22,10 @@ await connectDB();
 
 const app = express();
 
+// Trust proxy is required when hosting on platforms like Railway, Render, or Heroku
+// so that Express correctly handles the 'Secure' cookie flag over the proxy's HTTPS
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: process.env.CLIENT_URL,
   credentials: true
