@@ -26,8 +26,12 @@ const app = express();
 // so that Express correctly handles the 'Secure' cookie flag over the proxy's HTTPS
 app.set('trust proxy', 1);
 
+const allowedOrigins = process.env.CLIENT_URL 
+  ? process.env.CLIENT_URL.split(',').map(url => url.trim()) 
+  : [];
+
 app.use(cors({
-  origin: process.env.CLIENT_URL,
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
