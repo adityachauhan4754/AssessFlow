@@ -4,7 +4,9 @@ import User from '../models/User.js';
 
 const generateToken = (res, userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: '30d' });
-  const isProd = process.env.NODE_ENV === 'production';
+  const clientUrl = process.env.CLIENT_URL || '';
+  const isCrossDomain = !clientUrl.includes('localhost');
+  const isProd = process.env.NODE_ENV === 'production' || isCrossDomain;
   
   res.cookie('jwt', token, {
     httpOnly: true,
@@ -47,7 +49,10 @@ export const loginUser = asyncHandler(async (req, res) => {
 });
 
 export const logoutUser = asyncHandler(async (req, res) => {
-  const isProd = process.env.NODE_ENV === 'production';
+  const clientUrl = process.env.CLIENT_URL || '';
+  const isCrossDomain = !clientUrl.includes('localhost');
+  const isProd = process.env.NODE_ENV === 'production' || isCrossDomain;
+  
   res.cookie('jwt', '', { 
     httpOnly: true, 
     secure: isProd,
