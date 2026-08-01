@@ -10,12 +10,16 @@ export const DashboardLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [project, setProject] = useState(null);
-  const profileMenuRef = useRef(null);
+  const mobileProfileRef = useRef(null);
+  const desktopProfileRef = useRef(null);
 
   // Close profile menu on outside click
   useEffect(() => {
     const handleClick = (e) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+      const isOutsideMobile = mobileProfileRef.current && !mobileProfileRef.current.contains(e.target);
+      const isOutsideDesktop = desktopProfileRef.current && !desktopProfileRef.current.contains(e.target);
+      
+      if (isOutsideMobile && isOutsideDesktop) {
         setProfileMenuOpen(false);
       }
     };
@@ -58,8 +62,8 @@ export const DashboardLayout = () => {
 
   const isActive = (path) => location.pathname === path || location.pathname.startsWith(path + '/');
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
+  const SidebarContent = ({ profileRef }) => (
+    <div className="flex flex-col h-full overflow-y-auto custom-scrollbar">
       {/* Brand Header */}
       <div className="flex flex-col items-center justify-center py-lg px-md border-b border-outline-variant shrink-0 gap-sm">
         <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center text-on-primary shadow-sm">
@@ -140,7 +144,7 @@ export const DashboardLayout = () => {
         </button>
 
         {/* User Profile Card */}
-        <div className="relative" ref={profileMenuRef}>
+        <div className="relative" ref={profileRef}>
           <button
             className="w-full flex items-center gap-md px-md py-sm hover:bg-surface-container-high rounded-lg transition-all"
             onClick={() => setProfileMenuOpen(!profileMenuOpen)}
@@ -217,14 +221,14 @@ export const DashboardLayout = () => {
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <SidebarContent />
+          <SidebarContent profileRef={mobileProfileRef} />
         </div>
       </div>
 
       <div className="flex min-h-screen">
         {/* Desktop Sidebar */}
         <aside className="hidden md:flex flex-col w-72 bg-surface border-r border-outline-variant h-screen sticky top-0 shrink-0">
-          <SidebarContent />
+          <SidebarContent profileRef={desktopProfileRef} />
         </aside>
 
         {/* Main Content Canvas */}
